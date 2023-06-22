@@ -2,31 +2,78 @@
 # one with the model settings
 # the other with strings to test
 
-# import neural_network
+import sys
+from neural_network import neural_network
+import numpy as np
+
+if __name__ == "__main__":
+    if len(sys.argv) == 0:
+        raise Exception("You must insert which model to run (select 1 or 0).")
+
+    wanted_model = sys.argv[1]
+
+    if wanted_model != "0" and wanted_model != "1":
+        raise Exception("The input for the wanted model must be 1 or 0 only.")
+
+    # open wnet file with the model setting
+    with open("wnet"+ wanted_model + ".txt", "r") as model_settings:
+        # read the model structure settings and build the model accordingly
+        model_layers = int(model_settings.readline()) # number of layers
+
+        # create a neural network model with model_layers layers
+        model_weights = []
+        for layer in range(model_layers): # start to read each layer
+            rows_number = int(model_settings.readline()) # read the number of rows in the layer matrix
+            rows = []
+
+            for row in range(rows_number):
+                # each row is seperated in a different line and the weights of the row is seperated by ','
+                weights_line = model_settings.readline()
+                rows.append(np.array([float(weight) for weight in weights_line.split(',') if (weight != '' and weight != '\n')]))
+
+            model_weights.append(rows)
+
+        model = neural_network(model_layers, layers_weights=model_weights) # create the model
 
 
 
-# open wnet file with the model setting and build the model
-with open("wnet.txt","r") as model_settings:
-    # read the model structure settings and build the model accordingly
-    model_layers = int(model_settings.readline())
-    # create a neural network model with model_layers layers
-    # model = neural_network(model_layers)
-    for layer in range(model_layers):
-        layer_weights_line = model_settings.readline()
-        layer_weights = [float(weight) for weight in layer_weights_line.split(' ')]
-        # model.update_layer(layer, layer_weights)
+    # for self testing:
+    # X = []
+    # Y = []
+    # with open("testnet" + wanted_model + ".txt", "r") as test_file:
+    #     # go through each line and give the string an assignment (0/1)
+    #     # for each string write the assigned label in the "labels.txt" file
+    #     line = test_file.readline()
+    #     while line != "" and line != "\n":
+    #         input, label = line[:-2], line[-2:-1]
+    #         X.append([int(j) for j in input])
+    #         Y.append(int(label))
+    #         line = test_file.readline()
+    #
+    #     inputs = np.array(X)
+    #     real_labels = np.array([Y])
+    #
+    #     labels = model.propagate(inputs)
+    #     labels = np.round(labels)
+    #     with open("labels" + wanted_model + ".txt", "w") as result_file:
+    #         for index, label in enumerate(labels):
+    #             # write the result label to the result_file
+    #             result_file.write(str(int(label)) + "=" + str(real_labels[0][index]) + "==" + str(label == real_labels[0][index]) +  "\n" )
 
 
+    # for submission:
+    X = []
+    with open("testnet" + wanted_model + ".txt", "r") as test_file:
+        line = test_file.readline()
+        while line != "" and line != "\n":
+            X.append([int(j) for j in line])
+            line = test_file.readline()
 
-# get the test file to open and label
-with open("testnet0.txt", "r") as test_file:
-    # go through each line and give the string an assignment (0/1)
-    # for each string write the assigned label in the "labels.txt" file
-    with open("labels0.txt", "w") as result_file:
-        for line in range (20000):
-            string_to_test = test_file.readline()
-            label = ""
-            # label = model.assign(line)
-            # write the result label to the result_file
-            result_file.write(label + "\n" )
+        inputs = np.array(X)
+        labels = model.propagate(inputs)
+        labels = np.round(labels)
+
+        # write the result to the labels file
+        with open("labels" + wanted_model + ".txt", "w") as result_file:
+            for label in labels:
+                result_file.write(str(int(label)) + "\n")
