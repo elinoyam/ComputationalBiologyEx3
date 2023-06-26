@@ -145,6 +145,7 @@ class genetic_algorithm:
                 print('Generation', str(i), ':')
                 print('The Best agent has fitness ' + str(agents[0].fitness) + 'at generation ' + str(i) + '.')
                 print('The Worst agent has fitness ' + str(agents[-1].fitness) + 'at generation ' + str(i) + '.')
+                last_fitness = agents[0].fitness
 
         agents = fitness(agents, X, y)
         best_agent = sorted(agents, key=lambda agent: agent.fitness, reverse=True)[0]
