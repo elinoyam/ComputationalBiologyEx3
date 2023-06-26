@@ -188,7 +188,7 @@ if __name__ == "__main__":
     print(agent.fitness)
 
     results = agent.neural_network.propagate(test_inputs)
-    labels = labels = np.round(results)
+    labels = np.round(results)
 
     # print(final_results)
     # print(test_labels[0])
