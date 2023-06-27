@@ -1,12 +1,15 @@
 import random
 import sys
+
 import numpy as np
 from neural_network import neural_network, sigmoid
+import matplotlib.pyplot as plt
 
 
 MUTATION_RATE = 0.5
-RESET_RATE = 0.8
+RESET_RATE = 0.80
 SELECTION_PERCENTAGE = 0.4
+
 
 class genetic_algorithm:
 
@@ -18,7 +21,7 @@ class genetic_algorithm:
                 self.fitness = 0
 
         def generate_agents(population, network):
-            return [Agent(network) for _ in range(population)];
+            return [Agent(network) for _ in range(population)]
 
         def fitness(agents, X, y):
             for agent in agents:
@@ -123,7 +126,10 @@ class genetic_algorithm:
         # MAIN LOOP
         global SELECTION_PERCENTAGE, MUTATION_RATE
         last_fitness = 0
+        fitness_history = []  # List to store the fitness values for each generation
+
         for i in range(generations):
+            print("Generation is " + str(i))
             if i == 0:
                 agents = generate_agents(pop_size, network)
 
@@ -131,32 +137,52 @@ class genetic_algorithm:
             agents = selection(agents)
             agents = crossover(agents, network, pop_size)
             agents = mutation(agents)
-            # agents = fitness(agents, X, y)
+
             if any(agent.fitness > threshold for agent in agents):
-                print('Threshold met at generation ' + str(i) + ' !')
+                print('Threshold met at generation ' + str(i) + '!')
 
             if i % 10 == 0:
-                if agents[0].fitness - last_fitness < 0.001:
+                if agents[0].fitness - last_fitness < 0.0001:
                     MUTATION_RATE = max(MUTATION_RATE + 0.25, 1)
                     SELECTION_PERCENTAGE = max(0.2, SELECTION_PERCENTAGE - 0.1)
                 else:
-                    MUTATION_RATE = 0.5 # default value
+                    MUTATION_RATE = 0.5  # default value
                     SELECTION_PERCENTAGE = 0.4
                 print('Generation', str(i), ':')
-                print('The Best agent has fitness ' + str(agents[0].fitness) + 'at generation ' + str(i) + '.')
-                print('The Worst agent has fitness ' + str(agents[-1].fitness) + 'at generation ' + str(i) + '.')
+                print('The Best agent has fitness ' + str(agents[0].fitness) + ' at generation ' + str(i) + '.')
+                print('The Worst agent has fitness ' + str(agents[-1].fitness) + ' at generation ' + str(i) + '.')
                 last_fitness = agents[0].fitness
+
+            fitness_history.append(agents[0].fitness)  # Store the fitness value of the best agent for this generation
+
+        # Plotting the fitness history
+        generations = np.arange(0, generations)
+        plt.plot(generations, fitness_history)
+        plt.xticks(np.arange(0, generations[-1] + 1, 10))
+        plt.xlabel('Generation')
+        plt.ylabel('Fitness')
+        plt.title('Fitness Progression')
+        plt.show()
 
         agents = fitness(agents, X, y)
         best_agent = sorted(agents, key=lambda agent: agent.fitness, reverse=True)[0]
+
         return best_agent
 
-
 if __name__ == "__main__":
+
     if len(sys.argv) == 0:
         raise Exception("You must insert which model to run (select 1 or 0).")
 
     wanted_model = sys.argv[1]
+
+    #wanted_model = "0"
+
+    if wanted_model != "0" and wanted_model != "1":
+        raise Exception("The input for the wanted model must be 1 or 0 only.")
+
+    # open the test file and split it into learn db and test db
+
 
     if wanted_model != "0" and wanted_model != "1":
         raise Exception("The input for the wanted model must be 1 or 0 only.")
@@ -173,37 +199,44 @@ if __name__ == "__main__":
             Y.append(int(label))
             line = strings_file.readline()
 
-        split_test_index = round(len(X) * 0.8)
+        split_test_index = round(len(X) * 1)
         build_inputs = np.array(X[0:split_test_index])
-        test_inputs = np.array(X[split_test_index:])
+        #test_inputs = np.array(X[split_test_index:])
         build_labels = np.array([Y[:split_test_index]])
-        test_labels = np.array([Y[split_test_index:]])
+        #test_labels = np.array([Y[split_test_index:]])
+
 
     # network = [[16,10,sigmoid], [10, 2, sigmoid], [2,1,sigmoid]]
     network = None
     ga = genetic_algorithm
 
-    agent = ga.execute(200,300,0.99,build_inputs,build_labels,network)
+    agent = ga.execute(20,30,0.99,build_inputs,build_labels,network)
     weights = agent.neural_network.weights
     print(agent.fitness)
 
+    X = []
+    Y = []
+
+    with open("nn_test" + wanted_model + ".txt", "r") as strings_test_file:
+        line = strings_test_file.readline()
+        while line != "" and line != "\n":
+            input, label = line.split('   ')
+            X.append([int(j) for j in input])
+            Y.append(int(label))
+            line = strings_test_file.readline()
+
+        split_test_index = round(len(X) * 1)
+        #build_inputs = np.array(X[0:split_test_index])
+        test_inputs = np.array(X[:split_test_index])
+        #build_labels = np.array([Y[:split_test_index]])
+        test_labels = np.array([Y[:split_test_index]])
+
     results = agent.neural_network.propagate(test_inputs)
     labels = np.round(results)
-
-    # print(final_results)
-    # print(test_labels[0])
-
-    # check if same labeling:
-    # is_same = True
-    # diff = 0
-    # for i in range(len(final_results)):
-    #     if final_results[i] != test_labels[0][i]:
-    #         is_same = False
-    #         diff +=1
-
-    # print("diff is = " + str(diff) + " so accurecy = " + str((len(final_results) - float(diff)) / len(final_results)))
-    # if is_same:
-    #     print("Results are Goooooooddddd!!")
+    num_samples = len(test_labels.T)
+    correct_predictions = np.sum(test_labels == labels.T)
+    accuracy = (correct_predictions / num_samples) * 100
+    print("Test accuracy is "+ str(accuracy))
 
     agent.neural_network.save_model("wnet" + wanted_model + ".txt")
 
