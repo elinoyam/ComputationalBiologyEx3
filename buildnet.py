@@ -210,7 +210,7 @@ if __name__ == "__main__":
     network = None
     ga = genetic_algorithm
 
-    agent = ga.execute(20,30,0.99,build_inputs,build_labels,network)
+    agent = ga.execute(200,300,0.99,build_inputs,build_labels,network)
     weights = agent.neural_network.weights
     print(agent.fitness)
 
