@@ -171,18 +171,8 @@ class genetic_algorithm:
 
 if __name__ == "__main__":
 
-    if len(sys.argv) == 0:
-        raise Exception("You must insert which model to run (select 1 or 0).")
 
-    wanted_model = sys.argv[1]
-
-    #wanted_model = "0"
-
-    if wanted_model != "0" and wanted_model != "1":
-        raise Exception("The input for the wanted model must be 1 or 0 only.")
-
-    # open the test file and split it into learn db and test db
-
+    wanted_model = input("insert which model to run (select 1 or 0)\n")
 
     if wanted_model != "0" and wanted_model != "1":
         raise Exception("The input for the wanted model must be 1 or 0 only.")
@@ -210,7 +200,7 @@ if __name__ == "__main__":
     network = None
     ga = genetic_algorithm
 
-    agent = ga.execute(200,300,0.99,build_inputs,build_labels,network)
+    agent = ga.execute(20,30,0.99,build_inputs,build_labels,network)
     weights = agent.neural_network.weights
     print(agent.fitness)
 
