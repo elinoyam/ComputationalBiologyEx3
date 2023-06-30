@@ -8,7 +8,7 @@ import numpy as np
 
 if __name__ == "__main__":
     #wanted_model = sys.argv[1]
-    wanted_model = "0"
+    wanted_model = input("insert which model to run (select 1 or 0)\n")
     if wanted_model != "0" and wanted_model != "1":
         raise Exception("The input for the wanted model must be 1 or 0 only.")
 
