@@ -7,11 +7,8 @@ from neural_network import neural_network
 import numpy as np
 
 if __name__ == "__main__":
-    if len(sys.argv) == 0:
-        raise Exception("You must insert which model to run (select 1 or 0).")
-
-    wanted_model = sys.argv[1]
-
+    #wanted_model = sys.argv[1]
+    wanted_model = "0"
     if wanted_model != "0" and wanted_model != "1":
         raise Exception("The input for the wanted model must be 1 or 0 only.")
 
@@ -63,17 +60,29 @@ if __name__ == "__main__":
 
     # for submission:
     X = []
+    removed_characters = []
+    counter = 0;
     with open("testnet" + wanted_model + ".txt", "r") as test_file:
         line = test_file.readline()
-        while line != "" and line != "\n":
+        while line != "" and line != '\n':
+            line = line.rstrip('\n')  # Remove newline character
+            last_character = line[-1]
+            removed_characters.append(last_character)
+            line = line[:-1]
             X.append([int(j) for j in line])
             line = test_file.readline()
+            counter = counter + 1
 
         inputs = np.array(X)
         labels = model.propagate(inputs)
         labels = np.round(labels)
+        labels = np.squeeze(labels).astype(int)
+        labels = labels.astype(str)
 
+        removed_characters_array = np.array(removed_characters)
         # write the result to the labels file
+        num_equal_elements = np.sum(labels == removed_characters_array)
+        print("Accuracy is: "+ str(num_equal_elements/counter*100))
         with open("labels" + wanted_model + ".txt", "w") as result_file:
             for label in labels:
-                result_file.write(str(int(label)) + "\n")
+                result_file.write(str(int(label.item())) + "\n")

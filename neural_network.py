@@ -10,38 +10,47 @@ def sigmoid(x):
 
 class neural_network:
     def randomize_weights(self, network):
-        # create randomized weights to the model
+        # create randomized weights for the model
         self.weights = []
         self.activations = []
 
-        if network == None: # if the structure of the network is not defined - randomize the structure as well
+        if network is None:  # if the structure of the network is not defined - randomize the structure as well
             network = []
             # randomize the network shape
-            number_of_layers = random.randint(1,4) # generate number of hidden layers
-            network.append([16, random.randint(1,10), sigmoid]) # add input layer (always starts with 16 like the input length)
-            for index in range(number_of_layers):
-                network.append([None, random.randint(1,10), sigmoid])
-            network.append([None, 1, sigmoid]) # output layer (always ends with 1 like the label length)
+            number_of_layers = random.randint(1, 3)  # generate number of hidden layers
+            network.append(
+                [16, random.randint(1, 10), sigmoid])  # add input layer (always starts with 16 like the input length)
+            neurons = 10  # initial number of neurons
+            for _ in range(number_of_layers):
+                if neurons > 1:  # exclude the case when neurons is already 1
+                    neurons = random.randint(1, neurons - 1)  # generate random number of neurons for the current layer
+                network.append([None, neurons, sigmoid])
+            network.append([None, 1, sigmoid])  # output layer (always ends with 1 like the label length)
 
-        for index,layer in enumerate(network):
-            if layer[0] != None: # if the input size is defined (it's in the 0 index)
+        for index, layer in enumerate(network):
+            if layer[0] is not None:  # if the input size is defined (it's in the 0 index)
                 input_size = layer[0]
-            else: # if the input size is not defined will set it to be like the output size of the layer before
+            else:  # if the input size is not defined, set it to be like the output size of the layer before
                 input_size = network[index - 1][1]
             output_size = layer[1]
             activation = layer[2]
-            self.weights.append(np.random.randn(input_size, output_size)) # random numbers as weights
+            self.weights.append(np.random.randn(input_size, output_size))  # random numbers as weights
             self.activations.append(activation)
 
-    def __init__(self, network,*, layers_weights = None, layers_activations = None):
-        if layers_weights == None and layers_activations == None: # need new and random weights
+    def __init__(self, network, *, layers_weights=None, layers_activations=None):
+        if layers_weights is None and layers_activations is None:  # need new and random weights
             self.randomize_weights(network)
         else:
             self.weights = []
             self.activations = []
-            for index in range(network): # here network mean number of layers
-                self.weights.append(np.array(layers_weights[index]))
-                self.activations.append(sigmoid if layers_activations is None else layers_activations[index]) # sigmoid is the default activation function
+            neurons = 10  # initial number of neurons
+            for index in range(network):  # here network means the number of layers
+                 if layers_weights is None:
+                    self.weights.append(np.random.randn(neurons, 1))
+                 else:
+                    self.weights.append(np.array(layers_weights[index]))
+                    self.activations.append(sigmoid if layers_activations is None else layers_activations[index])
+                    neurons -= 1  # decrease the number of neurons for the next layer
 
     def propagate(self, data):
         # create a label for the all data (must have length of 16)
