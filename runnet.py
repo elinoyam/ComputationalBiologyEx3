@@ -66,9 +66,9 @@ if __name__ == "__main__":
         line = test_file.readline()
         while line != "" and line != '\n':
             line = line.rstrip('\n')  # Remove newline character
-            last_character = line[-1]
-            removed_characters.append(last_character)
-            line = line[:-1]
+            #last_character = line[-1]
+            #removed_characters.append(last_character)
+            #line = line[:-1]
             X.append([int(j) for j in line])
             line = test_file.readline()
             counter = counter + 1
@@ -79,10 +79,10 @@ if __name__ == "__main__":
         labels = np.squeeze(labels).astype(int)
         labels = labels.astype(str)
 
-        removed_characters_array = np.array(removed_characters)
+        #removed_characters_array = np.array(removed_characters)
         # write the result to the labels file
-        num_equal_elements = np.sum(labels == removed_characters_array)
-        print("Accuracy is: "+ str(num_equal_elements/counter*100))
+        #num_equal_elements = np.sum(labels == removed_characters_array)
+        #print("Accuracy is: "+ str(num_equal_elements/counter*100))
         with open("labels" + wanted_model + ".txt", "w") as result_file:
             for label in labels:
                 result_file.write(str(int(label.item())) + "\n")

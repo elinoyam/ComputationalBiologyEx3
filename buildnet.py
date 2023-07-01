@@ -140,7 +140,7 @@ class genetic_algorithm:
                 print('Threshold met at generation ' + str(i) + '!')
 
             if i % 10 == 0:
-                if agents[0].fitness - last_fitness < 0.0001:
+                if agents[0].fitness - last_fitness < 0.001:
                     MUTATION_RATE = max(MUTATION_RATE + 0.25, 1)
                     SELECTION_PERCENTAGE = max(0.2, SELECTION_PERCENTAGE - 0.1)
                 else:
@@ -148,7 +148,7 @@ class genetic_algorithm:
                     SELECTION_PERCENTAGE = 0.4
                 print('Generation', str(i), ':')
                 print('The Best agent has fitness ' + str(agents[0].fitness) + ' at generation ' + str(i) + '.')
-                print('The Worst agent has fitness ' + str(agents[-1].fitness) + ' at generation ' + str(i) + '.')
+                #print('The Worst agent has fitness ' + str(agents[-1].fitness) + ' at generation ' + str(i) + '.')
                 last_fitness = agents[0].fitness
 
             fitness_history.append(agents[0].fitness)  # Store the fitness value of the best agent for this generation
@@ -198,7 +198,7 @@ if __name__ == "__main__":
     network = None
     ga = genetic_algorithm
 
-    agent = ga.execute(200,300,0.99,build_inputs,build_labels,network)
+    agent = ga.execute(200,500,0.99,build_inputs,build_labels,network)
     weights = agent.neural_network.weights
     print(agent.fitness)
 
